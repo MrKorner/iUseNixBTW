@@ -5,31 +5,39 @@
 
   #Networking
   networking.hostName = "nixos";
-  networking.networkmanager.enable = true;
-  networking.useDHCP = false;
+  networking.wireless.iwd.enable = true;
+  networking.useDHCP = true;
   networking.interfaces.enp3s0.useDHCP = true;
   networking.interfaces.wlp5s0.useDHCP = true;
-  networking.wireless.iwd.enable = true;
-  networking.networkmanager.wifi.backend = "iwd";
   time.timeZone = "Europe/Prague";
   #Networking
 
   #Desktop shenanigans
-  services.xserver.enable = true;
-  services.xserver.desktopManager.pantheon.enable = true;
-  programs.pantheon-tweaks.enable = true;
+   programs.sway = {
+    enable = true;
+    wrapperFeatures.gtk = true;
+    extraPackages = with pkgs; [
+    swaylock slurp grim
+    wl-clipboard pamixer
+    alacritty brightnessctl wl-clipboard
+    bemenu
+    ];
+  };
+  programs.steam.enable = true;
+  services.xserver.enable = false;
   services.thermald.enable = true;
+  hardware.steam-hardware.enable = true;
   services.printing.enable = false;
   services.irqbalance.enable = true;  
   
-  #Hardware shenanigans
-  services.xserver.videoDrivers = [ "modesetting" "amdgpu" ];
+  #Hard Soft shenanigans
   zramSwap.enable = true;
   zramSwap.memoryPercent = 75;
-  security.rtkit.enable = true;
   hardware.opengl.enable = true;
-  hardware.opengl.extraPackages = with pkgs; [ vaapiIntel amdvlk intel-compute-runtime rocm-opencl-icd ];
+  hardware.opengl.extraPackages = with pkgs; [ vaapiIntel amdvlk ];
   hardware.opengl.driSupport = true;
+  hardware.opengl.driSupport32Bit = true;
+  services.power-profiles-daemon.enable = true;
 
   #Desktop Integrations
   services.flatpak.enable = true;
@@ -58,34 +66,46 @@
   };
  #Boot shenanigans
 
- #Service config
-    systemd.services = {
-    NetworkManager-wait-online = {
-      enable = false;
-      restartIfChanged = false;
-    };
-    NetworkManager-dispatcher = {
-      enable = false;
-      restartIfChanged = false;
-    };
-    ModemManager = {
-      enable = false;
-      restartIfChanged = false;
-    };
-  };
-
- #Service config 
-
-
  #Configure keymap in X11
  services.xserver.layout = "us";
  services.xserver.xkbOptions = "eurosign:e";
 
  #Sound
- sound.enable = true;
+  hardware.pulseaudio.enable = false;
+  security.rtkit.enable = true;
+  services.pipewire = {
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+    pulse.enable = true;
+
+    # High quality BT calls
+    media-session.config.bluez-monitor.rules = [
+      {
+        # Matches all cards
+        matches = [{ "device.name" = "~bluez_card.*"; }];
+        actions = {
+          "update-props" = {
+            "bluez5.auto-connect" = [ "hfp_hf" "hsp_hs" "a2dp_sink" ];
+          };
+        };
+      }
+      {
+        matches = [
+          # Matches all sources
+          { "node.name" = "~bluez_input.*"; }
+          # Matches all outputs
+          { "node.name" = "~bluez_output.*"; }
+        ];
+        actions = {
+          "node.pause-on-idle" = false;
+        };
+      }
+    ];
+  };
  sound.mediaKeys.enable = true;
- hardware.pulseaudio.enable = true;
  hardware.bluetooth.enable = true;
+ hardware.bluetooth.hsphfpd.enable = true;
  hardware.bluetooth.settings = {
  General = {
     Enable = "Source,Sink,Media,Socket";
@@ -106,6 +126,7 @@
    grep = "grep --color=auto";
    fgrep = "fgrep --color=auto";
    egrep = "egrep --color=auto";
+   la = "ls -a";
    ll = "ls -lh";
    ls = "ls --color=auto";
    flatpak = "flatpak --user";
@@ -114,12 +135,6 @@
 
  #Packages
  nixpkgs.config.allowUnfree = true;
-
- environment.pantheon.excludePackages = with pkgs; [
- onboard qgnomeplatform epiphany gnome.geary pantheon.switchboard-plug-a11y
- pantheon.elementary-tasks pantheon.elementary-print-shim pantheon.elementary-onboarding pantheon.elementary-mail
- pantheon.elementary-feedback pantheon.elementary-capnet-assist pantheon.elementary-camera
- ];
  
  services.locate = {
     enable = true;
@@ -128,8 +143,8 @@
  };
 
  environment.systemPackages = with pkgs; [ 
- wget noto-fonts-cjk noto-fonts-extra lm_sensors htop time unrar strace mc
- wgetpaste psmisc lm_sensors cryptsetup powertop tree file git prelink
+ wget noto-fonts-cjk noto-fonts-extra lm_sensors htop time unrar strace mc pfetch pulseaudio acpi calcurse
+ wgetpaste psmisc lm_sensors cryptsetup powertop tree file git prelink appimage-run ncpamixer moc imv bc
  ];
  #Packages
 
