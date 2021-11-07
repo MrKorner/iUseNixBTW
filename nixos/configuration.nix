@@ -18,17 +18,15 @@
     wrapperFeatures.gtk = true;
     extraPackages = with pkgs; [
     swaylock slurp grim
-    wl-clipboard pamixer
+    wl-clipboard moc imv
     alacritty brightnessctl wl-clipboard
-    bemenu
+    bemenu ncpamixer
     ];
   };
   programs.steam.enable = true;
   services.xserver.enable = false;
-  services.thermald.enable = true;
   hardware.steam-hardware.enable = true;
-  services.printing.enable = false;
-  services.irqbalance.enable = true;  
+  services.udisks2.enable = false; 
   
   #Hard Soft shenanigans
   zramSwap.enable = true;
@@ -38,19 +36,6 @@
   hardware.opengl.driSupport = true;
   hardware.opengl.driSupport32Bit = true;
   services.power-profiles-daemon.enable = true;
-
-  #Desktop Integrations
-  services.flatpak.enable = true;
-    xdg = {
-    portal = {
-      enable = true;
-      extraPortals = with pkgs; [
-        xdg-desktop-portal-gtk
-      ];
-      gtkUsePortal = true;
-    };
-  };
-  #Desktop Integrations
 
   #Boot shenanigans
     boot.loader = {
@@ -143,8 +128,9 @@
  };
 
  environment.systemPackages = with pkgs; [ 
- wget noto-fonts-cjk noto-fonts-extra lm_sensors htop time unrar strace mc pfetch pulseaudio acpi calcurse
- wgetpaste psmisc lm_sensors cryptsetup powertop tree file git prelink appimage-run ncpamixer moc imv bc
+ wget noto-fonts-cjk noto-fonts-extra lm_sensors htop time unrar
+ strace mc neofetch pulseaudio acpi usbutils lshw prelink bc chromium
+ wgetpaste psmisc lm_sensors cryptsetup powertop tree file git appimage-run
  ];
  #Packages
 
