@@ -17,17 +17,17 @@
     enable = true;
     wrapperFeatures.gtk = true;
     extraPackages = with pkgs; [
-    swaylock slurp grim
-    wl-clipboard moc imv
+    slurp grim wl-clipboard moc imv
     alacritty brightnessctl wl-clipboard
     bemenu ncpamixer
     ];
   };
+
   programs.steam.enable = true;
   services.xserver.enable = false;
   hardware.steam-hardware.enable = true;
   services.udisks2.enable = false; 
-  
+    
   #Hard Soft shenanigans
   zramSwap.enable = true;
   zramSwap.memoryPercent = 75;
@@ -36,7 +36,8 @@
   hardware.opengl.driSupport = true;
   hardware.opengl.driSupport32Bit = true;
   services.power-profiles-daemon.enable = true;
-
+  nix.maxJobs = 8;
+ 
   #Boot shenanigans
     boot.loader = {
     systemd-boot.enable = false;
@@ -101,7 +102,7 @@
   #User options
   users.users.korner = {
     isNormalUser = true;
-    extraGroups = [ "networkmanager" "mlocate" "wheel" "audio" "video" ];
+    extraGroups = [ "mlocate" "wheel" "audio" "video" ];
   };
 
   programs.bash.shellAliases = {
@@ -113,6 +114,7 @@
    egrep = "egrep --color=auto";
    la = "ls -a";
    ll = "ls -lh";
+   lla = "ls -lha";
    ls = "ls --color=auto";
    flatpak = "flatpak --user";
  };
@@ -128,9 +130,9 @@
  };
 
  environment.systemPackages = with pkgs; [ 
- wget noto-fonts-cjk noto-fonts-extra lm_sensors htop time unrar
- strace mc neofetch pulseaudio acpi usbutils lshw prelink bc chromium
- wgetpaste psmisc lm_sensors cryptsetup powertop tree file git appimage-run
+ wget noto-fonts-cjk noto-fonts-extra lm_sensors htop time unrar gnutar
+ mc neofetch pulseaudio acpi usbutils bc chromium wgetpaste gnome3.adwaita-icon-theme
+ psmisc lm_sensors cryptsetup powertop file git appimage-run hakuneko
  ];
  #Packages
 
