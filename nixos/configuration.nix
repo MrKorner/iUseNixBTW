@@ -5,10 +5,23 @@
 
   #Networking
   networking.hostName = "nixos";
+  services.resolved.enable = true;
   networking.wireless.iwd.enable = true;
-  networking.useDHCP = true;
-  networking.interfaces.enp3s0.useDHCP = true;
-  networking.interfaces.wlp5s0.useDHCP = true;
+  networking.wireless.iwd.settings = {
+   Network = {
+    EnableIPv6 = true;
+    };
+    General = {
+    EnableNetworkConfiguration = true;
+    };
+    Settings = {
+    AutoConnect = true;
+    };
+  };
+
+  networking.useDHCP = false;
+  #networking.interfaces.enp3s0.useDHCP = true;
+  #networking.interfaces.wlp5s0.useDHCP = true;
   time.timeZone = "Europe/Prague";
   #Networking
 
@@ -19,11 +32,14 @@
     extraPackages = with pkgs; [
     slurp grim wl-clipboard moc imv
     alacritty brightnessctl wl-clipboard
-    bemenu ncpamixer
+    bemenu
     ];
   };
 
   programs.steam.enable = true;
+  services.flatpak.enable = true;
+  xdg.portal.enable = true;
+  xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
   services.xserver.enable = false;
   hardware.steam-hardware.enable = true;
   services.udisks2.enable = false; 
@@ -58,51 +74,30 @@
 
  #Sound
   hardware.pulseaudio.enable = false;
-  security.rtkit.enable = true;
+  security.rtkit.enable = true;  
+  services.pipewire.media-session.enable = true;
   services.pipewire = {
     enable = true;
+    pulse.enable = true;
     alsa.enable = true;
     alsa.support32Bit = true;
-    pulse.enable = true;
-
-    # High quality BT calls
-    media-session.config.bluez-monitor.rules = [
-      {
-        # Matches all cards
-        matches = [{ "device.name" = "~bluez_card.*"; }];
-        actions = {
-          "update-props" = {
-            "bluez5.auto-connect" = [ "hfp_hf" "hsp_hs" "a2dp_sink" ];
-          };
-        };
-      }
-      {
-        matches = [
-          # Matches all sources
-          { "node.name" = "~bluez_input.*"; }
-          # Matches all outputs
-          { "node.name" = "~bluez_output.*"; }
-        ];
-        actions = {
-          "node.pause-on-idle" = false;
-        };
-      }
-    ];
   };
- sound.mediaKeys.enable = true;
- hardware.bluetooth.enable = true;
- hardware.bluetooth.hsphfpd.enable = true;
- hardware.bluetooth.settings = {
- General = {
-    Enable = "Source,Sink,Media,Socket";
+
+  systemd.services = {
+    alsa-store = {
+      enable = false;
+      restartIfChanged = false;
     };
   };
+
+  sound.mediaKeys.enable = true;
+  hardware.bluetooth.enable = true;
   #Sound 
 
   #User options
   users.users.korner = {
     isNormalUser = true;
-    extraGroups = [ "mlocate" "wheel" "audio" "video" ];
+    extraGroups = [ "mlocate" "wheel" "audio" "video" "libvirtd" ];
   };
 
   programs.bash.shellAliases = {
@@ -120,6 +115,12 @@
  };
  #User options
 
+ #VM stuff
+ virtualisation.libvirtd.enable = true;
+ programs.dconf.enable = true;
+ virtualisation.spiceUSBRedirection.enable = true;
+ #VM stuff  
+
  #Packages
  nixpkgs.config.allowUnfree = true;
  
@@ -130,9 +131,19 @@
  };
 
  environment.systemPackages = with pkgs; [ 
- wget noto-fonts-cjk noto-fonts-extra lm_sensors htop time unrar gnutar
- mc neofetch pulseaudio acpi usbutils bc chromium wgetpaste gnome3.adwaita-icon-theme
- psmisc lm_sensors cryptsetup powertop file git appimage-run hakuneko
+ wget noto-fonts-cjk noto-fonts-extra lm_sensors htop time unrar gnutar noto-fonts-emoji
+ mc pulseaudio acpi usbutils bc chromium wgetpaste psmisc lm_sensors cryptsetup file git
+ (appimageTools.wrapType2 {
+  name = "gdlauncher";
+  src = fetchurl {
+    url = "https://github.com/gorilla-devs/GDLauncher/releases/download/v1.1.15/GDLauncher-linux-setup.AppImage";
+    sha256 = "ffb32ac0269523c48943f3615d140787c1ee4783140a1ac4a50cc4177f812dac";
+  };
+    extraPkgs = pkgs: with pkgs; [ pipewire.lib ];
+  })
+
+ appimage-run virt-manager irssi pavucontrol gnome.adwaita-icon-theme exfat-utils lsof bind
+ alsa-utils ncdu wlr-randr mcomix3 deadbeef
  ];
  #Packages
 
