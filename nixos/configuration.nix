@@ -25,30 +25,25 @@
   time.timeZone = "Europe/Prague";
   #Networking
 
-  #Desktop shenanigans
+  #Desktop shenanigan
    programs.sway = {
     enable = true;
     wrapperFeatures.gtk = true;
     extraPackages = with pkgs; [
-    slurp grim wl-clipboard moc imv
-    alacritty brightnessctl wl-clipboard
-    bemenu
+    slurp grim wl-clipboard imv
+    alacritty brightnessctl bemenu
     ];
   };
 
   programs.steam.enable = true;
-  services.flatpak.enable = true;
-  xdg.portal.enable = true;
-  xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
   services.xserver.enable = false;
-  hardware.steam-hardware.enable = true;
   services.udisks2.enable = false; 
-    
+
   #Hard Soft shenanigans
+  services.getty.autologinUser = "korner";
   zramSwap.enable = true;
   zramSwap.memoryPercent = 75;
   hardware.opengl.enable = true;
-  hardware.opengl.extraPackages = with pkgs; [ vaapiIntel amdvlk ];
   hardware.opengl.driSupport = true;
   hardware.opengl.driSupport32Bit = true;
   services.power-profiles-daemon.enable = true;
@@ -58,19 +53,15 @@
     boot.loader = {
     systemd-boot.enable = false;
     efi = {
-      canTouchEfiVariables = false;
+      canTouchEfiVariables = true;
     };
     grub = {
       efiSupport = true;
-      efiInstallAsRemovable = true;
+      efiInstallAsRemovable = false;
       device = "nodev";
     };
   };
  #Boot shenanigans
-
- #Configure keymap in X11
- services.xserver.layout = "us";
- services.xserver.xkbOptions = "eurosign:e";
 
  #Sound
   hardware.pulseaudio.enable = false;
@@ -111,7 +102,6 @@
    ll = "ls -lh";
    lla = "ls -lha";
    ls = "ls --color=auto";
-   flatpak = "flatpak --user";
  };
  #User options
 
@@ -142,8 +132,9 @@
     extraPkgs = pkgs: with pkgs; [ pipewire.lib ];
   })
 
- appimage-run virt-manager irssi pavucontrol gnome.adwaita-icon-theme exfat-utils lsof bind
- alsa-utils ncdu wlr-randr mcomix3 deadbeef
+ virt-manager irssi pavucontrol gnome.adwaita-icon-theme lsof bind
+ wlr-randr mcomix3 deadbeef celluloid youtube-dl ffmpeg hakuneko
+ jmtpfs tor-browser-bundle-bin
  ];
  #Packages
 
