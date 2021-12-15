@@ -1,46 +1,70 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   imports = [ ./hardware-configuration.nix];
 
   #Networking
   networking.hostName = "nixos";
+  networking.networkmanager.wifi.backend = "iwd";
+  networking.networkmanager.packages = [];
+  networking.networkmanager.enable = true;
   services.resolved.enable = true;
   networking.wireless.iwd.enable = true;
-  networking.wireless.iwd.settings = {
-   Network = {
-    EnableIPv6 = true;
-    };
-    General = {
-    EnableNetworkConfiguration = true;
-    };
-    Settings = {
-    AutoConnect = true;
+  systemd.services = {
+    ModemManager = {
+      enable = false;
+      restartIfChanged = false;
     };
   };
+ systemd.services = {
+    NetworkManager-dispatcher = {
+      enable = false;
+      restartIfChanged = false;
+    };
+  };
+ systemd.services = {
+    NetworkManager-wait-online = {
+      enable = false;
+      restartIfChanged = false;
+    };
+  };
+  #networking.wireless.iwd.settings = {
+  # Network = {
+  #  EnableIPv6 = true;
+  #  };
+  #  General = {
+  #  EnableNetworkConfiguration = true;
+  #  };
+  #  Settings = {
+  #  AutoConnect = true;
+  #  };
+  #};
 
   networking.useDHCP = false;
-  #networking.interfaces.enp3s0.useDHCP = true;
-  #networking.interfaces.wlp5s0.useDHCP = true;
   time.timeZone = "Europe/Prague";
   #Networking
 
   #Desktop shenanigan
-   programs.sway = {
-    enable = true;
-    wrapperFeatures.gtk = true;
-    extraPackages = with pkgs; [
-    slurp grim wl-clipboard imv
-    alacritty brightnessctl bemenu
-    ];
-  };
+#   programs.sway = {
+#    enable = true;
+#    wrapperFeatures.gtk = true;
+#    extraPackages = with pkgs; [
+#    slurp grim wl-clipboard imv
+#    alacritty brightnessctl bemenu
+#    wlr-randr
+#    ];
+#  };
 
   programs.steam.enable = true;
-  services.xserver.enable = false;
-  services.udisks2.enable = false; 
-
+  services.xserver.enable = true;
+  services.xserver.desktopManager.plasma5.enable = true;
+  services.xserver.displayManager.sddm.enable = true; 
+  services.xserver.desktopManager.plasma5.supportDDC = true; 
+  services.udisks2.enable = lib.mkForce false;
+  services.system-config-printer.enable = lib.mkForce false;
+  
   #Hard Soft shenanigans
-  services.getty.autologinUser = "korner";
+  #services.getty.autologinUser = "korner";
   zramSwap.enable = true;
   zramSwap.memoryPercent = 75;
   hardware.opengl.enable = true;
@@ -64,15 +88,15 @@
  #Boot shenanigans
 
  #Sound
-  hardware.pulseaudio.enable = false;
-  security.rtkit.enable = true;  
-  services.pipewire.media-session.enable = true;
-  services.pipewire = {
-    enable = true;
-    pulse.enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-  };
+  hardware.pulseaudio.enable = true;
+ # security.rtkit.enable = true;  
+ # services.pipewire.media-session.enable = true;
+ # services.pipewire = {
+ #   enable = true;
+ #   pulse.enable = true;
+ #   alsa.enable = true;
+ #   alsa.support32Bit = true;
+ # };
 
   systemd.services = {
     alsa-store = {
@@ -81,7 +105,6 @@
     };
   };
 
-  sound.mediaKeys.enable = true;
   hardware.bluetooth.enable = true;
   #Sound 
 
@@ -107,7 +130,6 @@
 
  #VM stuff
  virtualisation.libvirtd.enable = true;
- programs.dconf.enable = true;
  virtualisation.spiceUSBRedirection.enable = true;
  #VM stuff  
 
@@ -122,22 +144,21 @@
 
  environment.systemPackages = with pkgs; [ 
  wget noto-fonts-cjk noto-fonts-extra lm_sensors htop time unrar gnutar noto-fonts-emoji
- mc pulseaudio acpi usbutils bc chromium wgetpaste psmisc lm_sensors cryptsetup file git
+ mc acpi usbutils bc chromium wgetpaste psmisc lm_sensors cryptsetup file git ffmpeg ark
+ virt-manager irssi pavucontrol gnome.adwaita-icon-theme lsof bind mcomix3 youtube-dl hakuneko
+
  (appimageTools.wrapType2 {
   name = "gdlauncher";
   src = fetchurl {
-    url = "https://github.com/gorilla-devs/GDLauncher/releases/download/v1.1.15/GDLauncher-linux-setup.AppImage";
-    sha256 = "ffb32ac0269523c48943f3615d140787c1ee4783140a1ac4a50cc4177f812dac";
+    url = "https://github.com/gorilla-devs/GDLauncher/releases/download/v1.1.18/GDLauncher-linux-setup.AppImage";
+    sha256 = "0vbcdfk6yf4252cp3k62y6p8fg9dxbbp5rrg9ql2c7gdly3cvbn2";
   };
     extraPkgs = pkgs: with pkgs; [ pipewire.lib ];
   })
-
- virt-manager irssi pavucontrol gnome.adwaita-icon-theme lsof bind
- wlr-randr mcomix3 deadbeef celluloid youtube-dl ffmpeg hakuneko
- jmtpfs tor-browser-bundle-bin
  ];
  #Packages
 
  system.stateVersion = "21.05";
 }
+
 

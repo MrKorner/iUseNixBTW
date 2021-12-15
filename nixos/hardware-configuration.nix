@@ -33,7 +33,5 @@
       fsType = "ext4";
     };
 
-  swapDevices = [ ];
-
   powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
 }
