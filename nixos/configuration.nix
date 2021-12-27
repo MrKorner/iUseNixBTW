@@ -5,73 +5,44 @@
 
   #Networking
   networking.hostName = "nixos";
-  networking.networkmanager.wifi.backend = "iwd";
-  networking.networkmanager.packages = [];
-  networking.networkmanager.enable = true;
   services.resolved.enable = true;
   networking.wireless.iwd.enable = true;
-  systemd.services = {
-    ModemManager = {
-      enable = false;
-      restartIfChanged = false;
+  networking.wireless.iwd.settings = {
+   Network = {
+    EnableIPv6 = true;
+    };
+    General = {
+    EnableNetworkConfiguration = true;
+    };
+    Settings = {
+    AutoConnect = true;
     };
   };
- systemd.services = {
-    NetworkManager-dispatcher = {
-      enable = false;
-      restartIfChanged = false;
-    };
-  };
- systemd.services = {
-    NetworkManager-wait-online = {
-      enable = false;
-      restartIfChanged = false;
-    };
-  };
-  #networking.wireless.iwd.settings = {
-  # Network = {
-  #  EnableIPv6 = true;
-  #  };
-  #  General = {
-  #  EnableNetworkConfiguration = true;
-  #  };
-  #  Settings = {
-  #  AutoConnect = true;
-  #  };
-  #};
 
   networking.useDHCP = false;
   time.timeZone = "Europe/Prague";
   #Networking
 
   #Desktop shenanigan
-#   programs.sway = {
-#    enable = true;
-#    wrapperFeatures.gtk = true;
-#    extraPackages = with pkgs; [
-#    slurp grim wl-clipboard imv
-#    alacritty brightnessctl bemenu
-#    wlr-randr
-#    ];
-#  };
+   programs.sway = {
+    enable = true;
+    wrapperFeatures.gtk = true;
+    extraPackages = with pkgs; [
+    slurp grim wl-clipboard imv
+    alacritty brightnessctl bemenu
+    wlr-randr mc
+    ];
+  };
 
   programs.steam.enable = true;
-  services.xserver.enable = true;
-  services.xserver.desktopManager.plasma5.enable = true;
-  services.xserver.displayManager.sddm.enable = true; 
-  services.xserver.desktopManager.plasma5.supportDDC = true; 
-  services.udisks2.enable = lib.mkForce false;
-  services.system-config-printer.enable = lib.mkForce false;
-  
   #Hard Soft shenanigans
-  #services.getty.autologinUser = "korner";
+  services.getty.autologinUser = "korner";
   zramSwap.enable = true;
   zramSwap.memoryPercent = 75;
   hardware.opengl.enable = true;
   hardware.opengl.driSupport = true;
   hardware.opengl.driSupport32Bit = true;
   services.power-profiles-daemon.enable = true;
-  nix.maxJobs = 8;
  
   #Boot shenanigans
     boot.loader = {
@@ -88,15 +59,15 @@
  #Boot shenanigans
 
  #Sound
-  hardware.pulseaudio.enable = true;
- # security.rtkit.enable = true;  
- # services.pipewire.media-session.enable = true;
- # services.pipewire = {
- #   enable = true;
- #   pulse.enable = true;
- #   alsa.enable = true;
- #   alsa.support32Bit = true;
- # };
+  hardware.pulseaudio.enable = false;
+  security.rtkit.enable = true;  
+  services.pipewire.media-session.enable = true;
+  services.pipewire = {
+    enable = true;
+    pulse.enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
+  };
 
   systemd.services = {
     alsa-store = {
@@ -125,12 +96,13 @@
    ll = "ls -lh";
    lla = "ls -lha";
    ls = "ls --color=auto";
+   flatpak = "flatpak --user";
  };
  #User options
 
  #VM stuff
- virtualisation.libvirtd.enable = true;
- virtualisation.spiceUSBRedirection.enable = true;
+ #virtualisation.libvirtd.enable = true;
+ #virtualisation.spiceUSBRedirection.enable = true;
  #VM stuff  
 
  #Packages
@@ -143,9 +115,9 @@
  };
 
  environment.systemPackages = with pkgs; [ 
- wget noto-fonts-cjk noto-fonts-extra lm_sensors htop time unrar gnutar noto-fonts-emoji
- mc acpi usbutils bc chromium wgetpaste psmisc lm_sensors cryptsetup file git ffmpeg ark
- virt-manager irssi pavucontrol gnome.adwaita-icon-theme lsof bind mcomix3 youtube-dl hakuneko
+ wget noto-fonts-cjk noto-fonts-extra lm_sensors htop time unrar gnutar noto-fonts-emoji intel-gpu-tools
+ acpi usbutils chromium wgetpaste psmisc cryptsetup file git ffmpeg  pavucontrol pulseaudio
+ irssi gnome.adwaita-icon-theme lsof bind mcomix3 youtube-dl hakuneko celluloid deadbeef
 
  (appimageTools.wrapType2 {
   name = "gdlauncher";
