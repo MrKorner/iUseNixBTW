@@ -4,7 +4,7 @@
   imports = [ ./hardware-configuration.nix];
 
   #Networking
-  networking.hostName = "nixos";
+  networking.hostName = "KornerOS";
   services.resolved.enable = true;
   networking.wireless.iwd.enable = true;
   networking.wireless.iwd.settings = {
@@ -28,33 +28,26 @@
     enable = true;
     wrapperFeatures.gtk = true;
     extraPackages = with pkgs; [
-    slurp grim wl-clipboard imv
+    slurp grim wl-clipboard imv mc
     alacritty brightnessctl bemenu
-    wlr-randr mc
     ];
   };
-
   programs.steam.enable = true;
+
   #Hard Soft shenanigans
   services.getty.autologinUser = "korner";
   zramSwap.enable = true;
-  zramSwap.memoryPercent = 75;
+  zramSwap.memoryPercent = 95;
   hardware.opengl.enable = true;
   hardware.opengl.driSupport = true;
   hardware.opengl.driSupport32Bit = true;
   services.power-profiles-daemon.enable = true;
- 
   #Boot shenanigans
-    boot.loader = {
-    systemd-boot.enable = false;
-    efi = {
-      canTouchEfiVariables = true;
-    };
-    grub = {
-      efiSupport = true;
-      efiInstallAsRemovable = false;
-      device = "nodev";
-    };
+  boot.loader = {
+   systemd-boot.enable = true;
+   efi = {
+    canTouchEfiVariables = true;
+   };
   };
  #Boot shenanigans
 
@@ -82,7 +75,7 @@
   #User options
   users.users.korner = {
     isNormalUser = true;
-    extraGroups = [ "mlocate" "wheel" "audio" "video" "libvirtd" ];
+    extraGroups = [ "wheel" "audio" "video" "libvirtd" ];
   };
 
   programs.bash.shellAliases = {
@@ -96,7 +89,6 @@
    ll = "ls -lh";
    lla = "ls -lha";
    ls = "ls --color=auto";
-   flatpak = "flatpak --user";
  };
  #User options
 
@@ -115,9 +107,9 @@
  };
 
  environment.systemPackages = with pkgs; [ 
- wget noto-fonts-cjk noto-fonts-extra lm_sensors htop time unrar gnutar noto-fonts-emoji intel-gpu-tools
- acpi usbutils chromium wgetpaste psmisc cryptsetup file git ffmpeg  pavucontrol pulseaudio
- irssi gnome.adwaita-icon-theme lsof bind mcomix3 youtube-dl hakuneko celluloid deadbeef
+ wget noto-fonts-cjk noto-fonts-extra lm_sensors htop time unrar gnutar noto-fonts-emoji tor-browser-bundle-bin
+ acpi usbutils chromium wgetpaste psmisc cryptsetup file git ffmpeg pavucontrol pulseaudio
+ irssi gnome.adwaita-icon-theme lsof bind mcomix3 youtube-dl hakuneko celluloid deadbeef freetube
 
  (appimageTools.wrapType2 {
   name = "gdlauncher";
@@ -127,9 +119,20 @@
   };
     extraPkgs = pkgs: with pkgs; [ pipewire.lib ];
   })
- ];
- #Packages
+ (appimageTools.wrapType2 {
+  name = "osu";
+  src = fetchurl {
+    url = "https://github.com/ppy/osu/releases/download/2021.1225.0/osu.AppImage";
+    sha256 = "12a4hmqdfpdghpqnb6i9x1c05hlw16z9h3mkfq3pbsdc6x5cflmc";
+  };
+    extraPkgs = pkgs: with pkgs; [ pipewire.lib icu ];
+  })
 
+ ];
+
+
+ #Packages
+# boot.kernelPackages  = pkgs.linuxKernel.kernels.linux_zen;
  system.stateVersion = "21.05";
 }
 
