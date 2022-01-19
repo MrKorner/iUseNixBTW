@@ -1,7 +1,7 @@
 { config, pkgs, lib, ... }:
 
 {
-  imports = [ ./hardware-configuration.nix];
+  imports = [ ./hardware-configuration.nix ];
 
   #Networking
   networking.hostName = "KornerOS";
@@ -75,7 +75,7 @@
   #User options
   users.users.korner = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "audio" "video" "libvirtd" ];
+    extraGroups = [ "wheel" "audio" "video" "libvirtd" "adbusers" ];
   };
 
   programs.bash.shellAliases = {
@@ -92,10 +92,9 @@
  };
  #User options
 
- #VM stuff
- #virtualisation.libvirtd.enable = true;
- #virtualisation.spiceUSBRedirection.enable = true;
- #VM stuff  
+ boot.kernelPackages = pkgs.linuxPackages_zen;
+ programs.adb.enable = true;
+
 
  #Packages
  nixpkgs.config.allowUnfree = true;
@@ -107,15 +106,15 @@
  };
 
  environment.systemPackages = with pkgs; [ 
- wget noto-fonts-cjk noto-fonts-extra lm_sensors htop time unrar gnutar noto-fonts-emoji tor-browser-bundle-bin
- acpi usbutils chromium wgetpaste psmisc cryptsetup file git ffmpeg pavucontrol pulseaudio
- irssi gnome.adwaita-icon-theme lsof bind mcomix3 youtube-dl hakuneko celluloid deadbeef freetube
+ wget noto-fonts-cjk noto-fonts-extra lm_sensors htop time unrar gnutar noto-fonts-emoji nyxt debianutils
+ acpi usbutils chromium wgetpaste psmisc cryptsetup file git ffmpeg pavucontrol pulseaudio debootstrap
+ gnome.adwaita-icon-theme lsof bind mcomix3 youtube-dl hakuneko celluloid deadbeef freetube heimdall
 
  (appimageTools.wrapType2 {
   name = "gdlauncher";
   src = fetchurl {
-    url = "https://github.com/gorilla-devs/GDLauncher/releases/download/v1.1.18/GDLauncher-linux-setup.AppImage";
-    sha256 = "0vbcdfk6yf4252cp3k62y6p8fg9dxbbp5rrg9ql2c7gdly3cvbn2";
+    url = "https://github.com/gorilla-devs/GDLauncher/releases/download/v1.1.21/GDLauncher-linux-setup.AppImage";
+    sha256 = "1ka4m96s6s8vbnndyxhnd5k0dlx7j9d7qrxxddsdbz66jci85k3i";
   };
     extraPkgs = pkgs: with pkgs; [ pipewire.lib ];
   })
@@ -130,10 +129,6 @@
 
  ];
 
-
  #Packages
-# boot.kernelPackages  = pkgs.linuxKernel.kernels.linux_zen;
  system.stateVersion = "21.05";
 }
-
-
