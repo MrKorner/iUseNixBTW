@@ -1,17 +1,12 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, modulesPath,... }:
 
 {
   imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+    [ (modulesPath + "/installer/scan/not-detected.nix") ];
   #Networking
+  networking.networkmanager.wifi.backend = "iwd";
   networking.networkmanager.enable = false;
-  networking.hostName = "KornerOS";
+  networking.hostName = "nixoslive";
   services.resolved.enable = true;
   networking.wireless.iwd.enable = true;
   networking.wireless.iwd.settings = {
@@ -31,7 +26,10 @@
   #Networking
 
   #Desktop shenanigan
+  environment.etc."sway/config".source = ./sway/config;
+  environment.etc."sway/somescriptname".source = ./sway/status.sh; 
    services.udisks2.enable = false;
+   programs.xwayland.enable = true;
    programs.sway = {
     enable = true;
     wrapperFeatures.gtk = true;
@@ -40,22 +38,14 @@
     alacritty brightnessctl bemenu
     ];
   };
-  programs.steam.enable = true;
-
   #Hard Soft shenanigans
-  services.getty.autologinUser = "korner";
+  services.getty.autologinUser = "nixos";
   zramSwap.enable = true;
   zramSwap.memoryPercent = 95;
   hardware.opengl.enable = true;
   hardware.opengl.driSupport = true;
   hardware.opengl.driSupport32Bit = true;
   services.power-profiles-daemon.enable = true;
-  security.pam.loginLimits = [{
-    domain = "-";
-    type = "-";
-    item = "nofile";
-    value = "999999999";
-  }];
   #Boot shenanigans
   boot.loader = {
    systemd-boot.enable = true;
@@ -84,12 +74,18 @@
   };
 
   hardware.bluetooth.enable = true;
-  #Sound 
+  #Sound
 
   #User options
-  users.users.korner = {
+  users.users.nixos = {
     isNormalUser = true;
     extraGroups = [ "wheel" "audio" "video" ];
+    password = "nixos";
+
+  };
+  security.sudo = {
+    enable = true;
+    wheelNeedsPassword = lib.mkForce false;
   };
 
   programs.bash.shellAliases = {
@@ -105,42 +101,31 @@
    ls = "ls --color=auto";
  };
  #User options
- boot.kernelParams = [ "amdgpu.ppfeaturemask=0xffffffff" "mitigations=off" ];
- boot.kernelPackages = pkgs.linuxPackages_zen;
- virtualisation.podman.enable = true;
+
  #Packages
  nixpkgs.config.allowUnfree = true;
- 
+
  services.locate = {
     enable = true;
     locate = pkgs.mlocate;
     interval = "hourly";
  };
- environment.systemPackages = with pkgs; [ 
- wget noto-fonts-cjk noto-fonts-extra lm_sensors htop time unrar gnutar noto-fonts-emoji pciutils
+ programs.java.enable = true;
+ environment.systemPackages = with pkgs; [
+ wget noto-fonts-cjk noto-fonts-extra lm_sensors htop time unrar gnutar noto-fonts-emoji
  acpi usbutils chromium wgetpaste psmisc cryptsetup file git pulseaudio gnome.adwaita-icon-theme
- lsof bind freetube nixos-generators busybox
-
- (appimageTools.wrapType2 {
-  name = "gdlauncher";
-  src = fetchurl {
-    url = "https://github.com/gorilla-devs/GDLauncher/releases/download/v1.1.21/GDLauncher-linux-setup.AppImage";
-    sha256 = "1ka4m96s6s8vbnndyxhnd5k0dlx7j9d7qrxxddsdbz66jci85k3i";
-  };
-    extraPkgs = pkgs: with pkgs; [ pipewire.lib ];
-  })
- (appimageTools.wrapType2 {
-  name = "osu";
-  src = fetchurl {
-    url = "https://github.com/ppy/osu/releases/download/2021.1225.0/osu.AppImage";
-    sha256 = "12a4hmqdfpdghpqnb6i9x1c05hlw16z9h3mkfq3pbsdc6x5cflmc";
-  };
-    extraPkgs = pkgs: with pkgs; [ pipewire.lib icu ];
-  })
-
+ lsof bind nixos-install-tools
  ];
  #Packages
 
-  system.stateVersion = "21.11"; #
+ #Hardware
+  boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" "sdhci_pci" ];
+  boot.initrd.kernelModules = [ ];
+  boot.kernelModules = [ "kvm-intel" ];
+  boot.extraModulePackages = [ ];
+  powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
+  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+
+  system.stateVersion = "21.11";
 
 }

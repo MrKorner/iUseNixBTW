@@ -1,0 +1,116 @@
+default_border none
+default_floating_border none
+
+
+set $black #000000
+set $white #ffffff
+set $red   #b00003
+
+#colorclasses
+client.focused $black	$red	$white
+
+set $mod Mod4
+set $menu bemenu-run | xargs swaymsg exec --
+set $term alacritty
+### Input configuration
+exec swaymsg input 1739:0:Synaptics_TM3383-032 events disabled
+
+    bindsym $mod+Return exec $term
+    bindsym $mod+Shift+Return exec "cage alacritty"
+    bindsym $mod+q kill -9
+    bindsym $mod+w exec $menu
+    floating_modifier $mod normal
+    bindsym $mod+Shift+c reload
+    bindsym $mod+Left focus left
+    bindsym $mod+Down focus down
+    bindsym $mod+Up focus up
+    bindsym $mod+Right focus right
+    bindsym $mod+Shift+Left move left
+    bindsym $mod+Shift+Down move down
+    bindsym $mod+Shift+Up move up
+    bindsym $mod+Shift+Right move right
+# Tabs
+    bindsym $mod+p layout tabbed
+    
+# Workspaces:
+    # Switch to workspace
+    bindsym $mod+1 workspace number 1
+    bindsym $mod+2 workspace number 2
+    bindsym $mod+3 workspace number 3
+    bindsym $mod+4 workspace number 4
+    # Move focused container to workspace
+    bindsym $mod+Shift+1 move container to workspace number 1
+    bindsym $mod+Shift+2 move container to workspace number 2
+    bindsym $mod+Shift+3 move container to workspace number 3
+    bindsym $mod+Shift+4 move container to workspace number 4
+    bindsym $mod+r splith
+    bindsym $mod+e splitv
+
+    # Make the current focus fullscreen
+    bindsym $mod+f fullscreen
+
+    # Toggle the current focus between tiling and floating mode
+    bindsym $mod+Shift+space floating toggle
+
+    # Swap focus between the tiling area and the floating area
+    bindsym $mod+space focus mode_toggle
+
+    # Move focus to the parent container
+    bindsym $mod+a focus parent
+
+mode "resize" {
+    bindsym Left resize shrink width 10px
+    bindsym Down resize grow height 10px
+    bindsym Up resize shrink height 10px
+    bindsym Right resize grow width 10px
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+shift+r mode "resize"
+
+input type:keyboard {
+    xkb_layout us,cz(qwerty)
+    xkb_options grp:rctrl_toggle
+}
+
+#scratchpad
+    bindsym $mod+KP_Subtract scratchpad show
+    bindsym $mod+Shift+KP_Subtract move scratchpad
+# Status Bar:
+bar {
+    position top
+    status_command exec sh /etc/sway/status.sh
+    pango_markup enabled
+    separator_symbol ":|:"
+    bindsym button1 exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+    bindsym button3 exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+    bindsym button2 exec pactl set-sink-mute @DEFAULT_SINK@ toggle 
+    colors {
+        separator #ff0000
+        focused_workspace #000000 #b00003 #ffffff
+        # Text color of status bar
+        statusline #ffffff
+        # Background of status bar
+        background #000000
+ }
+}
+
+# Function binds
+   bindsym XF86AudioMicMute exec pactl set-source-mute @DEFAULT_SOURCE@ toggle
+   bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+   bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+   bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+   bindsym XF86MonBrightnessDown exec brightnessctl s 2%-
+   bindsym XF86MonBrightnessUp exec brightnessctl s 2%+
+   input * xkb_numlock enable
+   bindsym print exec slurp | grim -g - $(date '+%F_%T').png
+# Autostart
+exec dbus-update-activation-environment DISPLAY WAYLAND_DISPLAY XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADRESS XAUTHORITY
+exec "export XDG_SESSION_TYPE=wayland; export GDK_BACKEND=wayland; export QT_QPA_PLATFORM=wayland; export MOZ_ENABLE_WAYLAND=1; export _JAVA_AWT_WM_NONREPARENTING=1"
+exec export $(dbus-launch)
+for_window [app_id="^.*"] opacity 1
+default_border pixel 4
+default_floating_border pixel 4
+hide_edge_borders smart
+include @sysconfdir@/sway/config.d/*
+
