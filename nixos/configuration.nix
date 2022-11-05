@@ -1,22 +1,20 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-
 { config, pkgs, lib, ... }:
 
 {
   imports =
-    [ # Include the results of the hardware scan.
+    [
       ./hardware-configuration.nix
     ];
   #Networking
-  networking.networkmanager.enable = false;
+  networking.networkmanager.enable = true;
+  networking.networkmanager.plugins = [ ];
+  networking.networkmanager.wifi.backend = "iwd";
   networking.hostName = "KornerOS";
   services.resolved.enable = true;
   networking.wireless.iwd.enable = true;
   networking.wireless.iwd.settings = {
    Network = {
-    EnableIPv6 = true;
+    EnableIPv6 = false;
     };
     General = {
     EnableNetworkConfiguration = true;
@@ -31,49 +29,61 @@
   #Networking
 
   #Desktop shenanigan
-   services.udisks2.enable = false;
-   programs.sway = {
-    enable = true;
-    wrapperFeatures.gtk = true;
-    extraPackages = with pkgs; [
-    slurp grim wl-clipboard wf-recorder  mc
-    alacritty brightnessctl bemenu
-    ];
+  services.xserver.desktopManager.xfce.enable = true;
+  programs.dconf.enable = true;
+  services.xserver.enable = true;
+  services.xserver.excludePackages = [ pkgs.xterm ];
+  services.xserver.displayManager.lightdm.enable = true;
+  # services.udisks2.enable = false;
+  # programs.sway = {
+  #  enable = true;
+  #  wrapperFeatures.gtk = true;
+  #  extraPackages = with pkgs; [
+  #  slurp grim wl-clipboard wf-recorder
+  #  alacritty brightnessctl bemenu
+  #  ];
+  #};
+  #services.xserver.desktopManager.plasma5.excludePackages = with pkgs.libsForQt5; [
+  # oxygen
+  # khelpcenter
+  # plasma-browser-integration
+  # print-manager
+  # ];
+  #Hardware soft options
+  xdg.portal.enable = true;
+  xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+  services.flatpak.enable = true;
+  #services.getty.autologinUser = "korner";
+  environment.sessionVariables = rec {
+    XDG_CACHE_HOME  = "\${HOME}/.cache";
+    XDG_CONFIG_HOME = "\${HOME}/.config";
+    XDG_BIN_HOME    = "\${HOME}/.local/bin";
+    XDG_DATA_HOME   = "\${HOME}/.local/share";
   };
-  programs.steam.enable = true;
 
-  #Hard Soft shenanigans
-  services.getty.autologinUser = "korner";
+  virtualisation.podman.enable = true;
   zramSwap.enable = true;
   zramSwap.memoryPercent = 95;
   hardware.opengl.enable = true;
   hardware.opengl.driSupport = true;
-  hardware.opengl.driSupport32Bit = true;
   services.power-profiles-daemon.enable = true;
-  security.pam.loginLimits = [{
-    domain = "-";
-    type = "-";
-    item = "nofile";
-    value = "999999999";
-  }];
-  #Boot shenanigans
+  #Boot stuff
   boot.loader = {
    systemd-boot.enable = true;
    efi = {
     canTouchEfiVariables = true;
    };
   };
- #Boot shenanigans
+  #Boot stuff
 
  #Sound
   hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
-  services.pipewire.media-session.enable = true;
   services.pipewire = {
+    wireplumber.enable = true;
     enable = true;
     pulse.enable = true;
     alsa.enable = true;
-    alsa.support32Bit = true;
   };
 
   systemd.services = {
@@ -82,14 +92,34 @@
       restartIfChanged = false;
     };
   };
+ #Sound
+
+  systemd.services = {
+    NetworkManager-dispatcher = {
+      enable = false;
+      restartIfChanged = false;
+    };
+  };
+  systemd.services = {
+    NetworkManager-wait-online = {
+      enable = false;
+      restartIfChanged = false;
+    };
+  };
+ systemd.services = {
+    ModemManager = {
+      enable = false;
+      restartIfChanged = false;
+    };
+  };
+
 
   hardware.bluetooth.enable = true;
-  #Sound 
 
   #User options
   users.users.korner = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "audio" "video" ];
+    extraGroups = [ "wheel" "audio" "video" "input" "plugdev"];
   };
 
   programs.bash.shellAliases = {
@@ -105,9 +135,7 @@
    ls = "ls --color=auto";
  };
  #User options
- boot.kernelParams = [ "amdgpu.ppfeaturemask=0xffffffff" "mitigations=off" ];
- boot.kernelPackages = pkgs.linuxPackages_zen;
- virtualisation.podman.enable = true;
+
  #Packages
  nixpkgs.config.allowUnfree = true;
  
@@ -116,31 +144,13 @@
     locate = pkgs.mlocate;
     interval = "hourly";
  };
+
  environment.systemPackages = with pkgs; [ 
- wget noto-fonts-cjk noto-fonts-extra lm_sensors htop time unrar gnutar noto-fonts-emoji pciutils
- acpi usbutils chromium wgetpaste psmisc cryptsetup file git pulseaudio gnome.adwaita-icon-theme
- lsof bind freetube nixos-generators busybox
+  wget noto-fonts-cjk noto-fonts-extra lm_sensors htop time unrar gnutar noto-fonts-emoji pciutils
+  acpi usbutils wgetpaste psmisc cryptsetup file git pulseaudio mc lsof neofetch kate ark
+  ];
+  #Packages
 
- (appimageTools.wrapType2 {
-  name = "gdlauncher";
-  src = fetchurl {
-    url = "https://github.com/gorilla-devs/GDLauncher/releases/download/v1.1.21/GDLauncher-linux-setup.AppImage";
-    sha256 = "1ka4m96s6s8vbnndyxhnd5k0dlx7j9d7qrxxddsdbz66jci85k3i";
-  };
-    extraPkgs = pkgs: with pkgs; [ pipewire.lib ];
-  })
- (appimageTools.wrapType2 {
-  name = "osu";
-  src = fetchurl {
-    url = "https://github.com/ppy/osu/releases/download/2021.1225.0/osu.AppImage";
-    sha256 = "12a4hmqdfpdghpqnb6i9x1c05hlw16z9h3mkfq3pbsdc6x5cflmc";
-  };
-    extraPkgs = pkgs: with pkgs; [ pipewire.lib icu ];
-  })
-
- ];
- #Packages
-
-  system.stateVersion = "21.11"; #
+  system.stateVersion = "22.05";
 
 }
