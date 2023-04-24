@@ -7,32 +7,35 @@
   imports =
     [ (modulesPath + "/installer/scan/not-detected.nix")
     ];
-
+  boot.kernelParams = [ "mitigations=off"];
   boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" "sdhci_pci" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
+  boot.extraModprobeConfig = "options thinkpad_acpi fan_control=1\n";
 
   fileSystems."/" =
-    { device = "/dev/nvme0n1p2";
-      fsType = "ext4";
-    };
-  fileSystems."/home" =
-    { device = "/dev/nvme0n1p3";
-      fsType = "ext4";
-    };
-  fileSystems."/mnt/Data" =
-    { device = "/dev/sda1";
+    { device = "/dev/disk/by-uuid/eab463e0-a20b-4c43-a8da-bef169b21472";
       fsType = "ext4";
     };
 
-  fileSystems."/boot" =
-    { device = "/dev/nvme0n1p1";
+  fileSystems."/boot/efi" =
+    { device = "/dev/disk/by-uuid/8482-F457";
       fsType = "vfat";
     };
 
+  fileSystems."/home" =
+    { device = "/dev/disk/by-uuid/784af9e6-3ab3-461f-b2fc-4268a247dafa";
+      fsType = "ext4";
+    };
+
+  fileSystems."/mnt/Data" =
+    { device = "/dev/sda1";
+      fsType = "btrfs";
+    };
   swapDevices = [ ];
 
+  nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }
