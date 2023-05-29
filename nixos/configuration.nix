@@ -1,4 +1,4 @@
-{
+	{
   config,
   pkgs,
   lib,
@@ -101,8 +101,7 @@
   services.xserver.displayManager.sddm.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
   environment.plasma5.excludePackages = with pkgs.libsForQt5; [
-  oxygen khelpcenter plasma-browser-integration print-manager ];
-
+  oxygen khelpcenter plasma-browser-integration print-manager ];  
   sound.enable = true;
   hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
@@ -122,6 +121,7 @@
 
   zramSwap.enable = true;
   zramSwap.memoryPercent = 50;
+  zramSwap.algorithm = "lz4";
   hardware.opengl.enable = true;
   hardware.opengl.driSupport = true;
   services.power-profiles-daemon.enable = true;
@@ -145,20 +145,27 @@
   nixpkgs.config.allowUnfree = true;
 
   environment.systemPackages = with pkgs; [
-    wget noto-fonts-cjk lm_sensors htop time unrar gnutar pciutils prismlauncher
-    (pkgs.emacsUnstable.override {
-      nativeComp = false;
-      withPgtk = true;
-      withX = false;
-      withNS = false;
-      withGTK2 = false;
-      treeSitterPlugins = with pkgs.tree-sitter-grammars; [
-      	tree-sitter-bash
-	tree-sitter-nix
-      ];
+    noto-fonts-cjk lm_sensors htop time unrar gnutar pciutils prismlauncher
+    acpi usbutils wgetpaste psmisc cryptsetup file git mc neofetch librewolf
+    corectrl ffmpeg-full nheko freetube
+    (pkgs.tor-browser-bundle-bin.override {
+    useHardenedMalloc = false;
     })
-    acpi usbutils wgetpaste psmisc cryptsetup file git mc lsof neofetch librewolf
-    ffmpeg-full nheko btrfs-progs noto-fonts-emoji-blob-bin bc freetube inkscape nicotine-plus
+
+    ((pkgs.emacsUnstable.override {
+     nativeComp = false;
+     withPgtk = true;
+     withX = false;
+     withNS = false;
+     withGTK2 = false;
+     }).overrideAttrs (old: {
+     configureFlags =
+         old.configureFlags
+         ++ [
+           "--without-games"
+           "--without-emulation"
+         ];
+     }))
   ];
   system.stateVersion = "22.11";
 }
