@@ -7,36 +7,43 @@
   imports =
     [ (modulesPath + "/installer/scan/not-detected.nix")
     ];
-  boot.kernel.sysctl = { "vm.swappiness" = 30;};
-  boot.kernelParams = [ "mitigations=off"];
-  boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" "sdhci_pci" ];
+
+  boot.initrd.availableKernelModules = [ "nvme" "ahci" "xhci_pci" "usbhid" "usb_storage" "sd_mod" ];
   boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-intel" ];
+  boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
-  boot.extraModprobeConfig = "options thinkpad_acpi fan_control=1\n";
 
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/eab463e0-a20b-4c43-a8da-bef169b21472";
+    { device = "/dev/disk/by-uuid/a505bb53-008f-4f92-8bde-86ca364baf54";
       fsType = "ext4";
     };
+	
+  fileSystems."/home" =
+    { device = "/dev/disk/by-uuid/d820d808-12a3-4f89-a591-25299990a6b2";
+      fsType = "ext4";
+    };  
 
   fileSystems."/boot/efi" =
-    { device = "/dev/disk/by-uuid/8482-F457";
+    { device = "/dev/disk/by-uuid/1BC1-AFF5";
       fsType = "vfat";
-    };
-
-  fileSystems."/home" =
-    { device = "/dev/disk/by-uuid/784af9e6-3ab3-461f-b2fc-4268a247dafa";
-      fsType = "ext4";
-    };
+    };  
 
   fileSystems."/mnt/Data" =
-    { device = "/dev/sda1";
-      fsType = "btrfs";
-    };
+    { device = "/dev/disk/by-uuid/f6bf6cd6-65cb-433c-a1f7-6d10fcdd14e4";
+      fsType = "ext4";
+    };  
+
+
   swapDevices = [ ];
 
+  # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
+  # (the default) this is the recommended approach. When using systemd-networkd it's
+  # still possible to use this option, but it's recommended to use it in conjunction
+  # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
+  networking.useDHCP = lib.mkDefault true;
+  # networking.interfaces.enp13s0.useDHCP = lib.mkDefault true;
+  # networking.interfaces.wlp14s0.useDHCP = lib.mkDefault true;
+
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
-  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 }

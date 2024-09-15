@@ -9,14 +9,15 @@
   ];
 
   nix.settings.extra-experimental-features = "nix-command flakes";
-
+  boot.initrd.systemd.enable = true;
+  system.switch.enableNg = true;
+  system.switch.enable = false;
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.loader.efi.efiSysMountPoint = "/boot/efi";
-  
-  services.auto-cpufreq.enable = false;
   boot.tmp.cleanOnBoot = true;
   boot.tmp.useTmpfs = true;
+  nix.settings.auto-optimise-store = true;
   networking.networkmanager.plugins = lib.mkForce [];
   networking.networkmanager.enable = true;
   networking.networkmanager.wifi.backend = "iwd";
@@ -24,6 +25,11 @@
   systemd.oomd.enable = false;
   networking.hostName = "KornerOS";
   services.resolved.enable = true;
+  services.emacs.package = pkgs.emacs-gtk;
+  services.emacs.enable = true;
+  programs.kdeconnect.enable = true;
+  services.displayManager.sddm.wayland.compositor = "kwin";
+  services.desktopManager.plasma6.enableQt5Integration = false;
   networking.wireless.iwd.enable = true;
   networking.wireless.iwd.settings = {
     Network = {
@@ -96,14 +102,13 @@
 
 
 
-  services.xserver.enable = true;
+  services.xserver.enable = false;
   services.xserver.excludePackages = [ pkgs.xterm ];
-  services.xserver.displayManager.sddm.enable = true;
-  services.xserver.desktopManager.plasma5.enable = true;
-  environment.plasma5.excludePackages = with pkgs.libsForQt5; [
+  services.displayManager.sddm.enable = true;
+  services.displayManager.sddm.wayland.enable = true;
+  services.desktopManager.plasma6.enable = true;
+  environment.plasma6.excludePackages = with pkgs.libsForQt5; [
   oxygen khelpcenter plasma-browser-integration print-manager ];  
-  sound.enable = true;
-  hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -111,30 +116,25 @@
     alsa.support32Bit = true;
     pulse.enable = true;
   };
-
   services.locate.localuser = null;
   services.locate = {
     enable = true;
-    locate = pkgs.mlocate;
+    package = pkgs.mlocate;
     interval = "hourly";
   };
 
   zramSwap.enable = true;
   zramSwap.memoryPercent = 50;
   zramSwap.algorithm = "lz4";
-  hardware.opengl.enable = true;
-  hardware.opengl.driSupport = true;
   services.power-profiles-daemon.enable = true;
-
   programs.steam.enable = true;
-  programs.steam.package = pkgs.steam-small;
-  
-  nixpkgs.overlays = [
-    (import (builtins.fetchTarball {
-      url = https://github.com/nix-community/emacs-overlay/archive/master.tar.gz;
-    }))
-  ];
-  xdg.portal.enable = true;
+  programs.gamescope.enable = true;
+  programs.steam.extraCompatPackages = with pkgs; [ proton-ge-bin ];
+  programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [ libxkbcommon glib libGL fontconfig xorg.libX11 freetype nss
+  					   dbus nspr xorg.libXcomposite xorg.libXdamage xorg.libXfixes 
+	   				   xorg.libXrender xorg.libXrandr xorg.libXtst libdrm xorg.libXi 
+					   alsa-lib xorg.libxshmfence mesa xorg.libxkbfile krb5 xcb-util-cursor ];
 
   users.users.korner = {
     isNormalUser = true;
@@ -143,29 +143,11 @@
   };
 
   nixpkgs.config.allowUnfree = true;
-
+ 
   environment.systemPackages = with pkgs; [
-    noto-fonts-cjk lm_sensors htop time unrar gnutar pciutils prismlauncher
-    acpi usbutils wgetpaste psmisc cryptsetup file git mc neofetch librewolf
-    corectrl ffmpeg-full nheko freetube
-    (pkgs.tor-browser-bundle-bin.override {
-    useHardenedMalloc = false;
-    })
-
-    ((pkgs.emacsUnstable.override {
-     nativeComp = false;
-     withPgtk = true;
-     withX = false;
-     withNS = false;
-     withGTK2 = false;
-     }).overrideAttrs (old: {
-     configureFlags =
-         old.configureFlags
-         ++ [
-           "--without-games"
-           "--without-emulation"
-         ];
-     }))
+    noto-fonts-cjk noto-fonts-emoji lm_sensors htop time unrar gnutar pciutils prismlauncher kdePackages.elisa vlc easyeffects
+    acpi usbutils wgetpaste psmisc cryptsetup file git mc fastfetch kdePackages.gwenview kdePackages.okular ffmpeg-full
+    kdePackages.falkon freetube vintagestory kdePackages.krdc kdePackages.kweather kdePackages.kate element-desktop osu-lazer-bin
   ];
   system.stateVersion = "22.11";
 }
