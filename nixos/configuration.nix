@@ -146,7 +146,7 @@
  
   environment.systemPackages = with pkgs; [
     noto-fonts-cjk noto-fonts-emoji lm_sensors htop time unrar gnutar pciutils prismlauncher kdePackages.elisa vlc easyeffects
-    acpi usbutils wgetpaste psmisc cryptsetup file git mc fastfetch kdePackages.gwenview kdePackages.okular ffmpeg-full
+    acpi usbutils wgetpaste psmisc cryptsetup file git mc fastfetch kdePackages.gwenview kdePackages.okular ffmpeg-full corectrl
     kdePackages.falkon freetube vintagestory kdePackages.krdc kdePackages.kweather kdePackages.kate element-desktop osu-lazer-bin
   ];
   system.stateVersion = "22.11";

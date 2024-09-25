@@ -1,9 +1,6 @@
 {
   description = "KornOS";
-
   inputs = {
-    # Change `nixos-unstable` to any Nixpkgs branch you want.
-    # It will be automatically updated by `nix flake update`
     nixpkgs.url = "nixpkgs/nixos-unstable";
   };
 
