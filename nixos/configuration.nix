@@ -145,7 +145,7 @@
   nixpkgs.config.allowUnfree = true;
  
   environment.systemPackages = with pkgs; [
-    noto-fonts-cjk noto-fonts-emoji lm_sensors htop time unrar gnutar pciutils prismlauncher kdePackages.elisa vlc easyeffects
+    noto-fonts-cjk noto-fonts-emoji lm_sensors htop time unrar gnutar pciutils prismlauncher kdePackages.elisa vlc easyeffects ckan
     acpi usbutils wgetpaste psmisc cryptsetup file git mc fastfetch kdePackages.gwenview kdePackages.okular ffmpeg-full corectrl
     kdePackages.falkon freetube vintagestory kdePackages.krdc kdePackages.kweather kdePackages.kate element-desktop osu-lazer-bin
   ];
