@@ -24,12 +24,17 @@
   systemd.network.wait-online.enable = false;
   systemd.oomd.enable = false;
   networking.hostName = "KornerOS";
+  services.gvfs.enable = true;
   services.resolved.enable = true;
   services.emacs.package = pkgs.emacs-gtk;
   services.emacs.enable = true;
   programs.kdeconnect.enable = true;
-  services.displayManager.sddm.wayland.compositor = "kwin";
-  services.desktopManager.plasma6.enableQt5Integration = false;
+  programs.wayfire.enable = true;
+  programs.wayfire.plugins = with pkgs.wayfirePlugins; [
+  wcm wayfire-plugins-extra wf-shell
+  ];
+  #services.displayManager.sddm.wayland.compositor = "weston";
+  #services.desktopManager.plasma6.enableQt5Integration = false;
   networking.wireless.iwd.enable = true;
   networking.wireless.iwd.settings = {
     Network = {
@@ -104,11 +109,19 @@
 
   services.xserver.enable = false;
   services.xserver.excludePackages = [ pkgs.xterm ];
-  services.displayManager.sddm.enable = true;
-  services.displayManager.sddm.wayland.enable = true;
-  services.desktopManager.plasma6.enable = true;
-  environment.plasma6.excludePackages = with pkgs.libsForQt5; [
-  oxygen khelpcenter plasma-browser-integration print-manager ];  
+  #services.xserver.desktopManager.lxqt.enable = true;
+  xdg.portal.lxqt.enable = true;
+  qt.platformTheme = "qt5ct";
+  xdg.portal.wlr.enable = true;
+  environment.variables = {QT_QPA_PLATFORMTHEME = "qt6ct";
+			   GTK_THEME= "Adwaita:dark";   
+			   WAYLAND_DISPLAY= "wayland=1";};
+  #xdg.portal.extraPortals = [pkgs.xdg-desktop-portal-gtk];
+  #services.displayManager.sddm.enable = true;
+  #services.displayManager.sddm.wayland.enable = true;
+  #services.desktopManager.plasma6.enable = true;
+  #environment.plasma6.excludePackages = with pkgs.libsForQt5; [
+  #oxygen khelpcenter plasma-browser-integration print-manager ];  
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -126,6 +139,7 @@
   zramSwap.enable = true;
   zramSwap.memoryPercent = 50;
   zramSwap.algorithm = "lz4";
+  gtk.iconCache.enable = true;
   services.power-profiles-daemon.enable = true;
   programs.steam.enable = true;
   programs.gamescope.enable = true;
@@ -145,9 +159,11 @@
   nixpkgs.config.allowUnfree = true;
  
   environment.systemPackages = with pkgs; [
-    noto-fonts-cjk noto-fonts-emoji lm_sensors htop time unrar gnutar pciutils prismlauncher kdePackages.elisa vlc easyeffects ckan
-    acpi usbutils wgetpaste psmisc cryptsetup file git mc fastfetch kdePackages.gwenview kdePackages.okular ffmpeg-full corectrl
-    kdePackages.falkon freetube vintagestory kdePackages.krdc kdePackages.kweather kdePackages.kate element-desktop osu-lazer-bin
+    noto-fonts-cjk noto-fonts-emoji lm_sensors htop time unrar gnutar pciutils prismlauncher vlc ckan wdisplays kdePackages.breeze-icons
+    acpi usbutils wgetpaste psmisc file git mc fastfetch ffmpeg-full lxqt.qterminal lxqt.pcmanfm-qt grim slurp
+    lxqt.pavucontrol-qt lxqt.lxqt-policykit lxqt.qps lxqt.lxqt-archiver dconf-editor kanshi wlr-randr
+    freetube vintagestory element-desktop osu-lazer-bin qt6ct epiphany flat-remix-icon-theme mako
+
   ];
-  system.stateVersion = "22.11";
+system.stateVersion = "22.11";
 }
