@@ -11,6 +11,8 @@
 
   nix.settings.extra-experimental-features = "nix-command flakes";
   boot.initrd.systemd.enable = true;
+  hardware.bluetooth.enable = true;
+  services.upower.enable = true;
   system.switch.enableNg = true;
   system.switch.enable = false;
   boot.loader.systemd-boot.enable = true;
@@ -159,7 +161,7 @@
   nixpkgs.config.allowUnfree = true;
 
   environment.systemPackages = with pkgs; [
-    noto-fonts-cjk
+    noto-fonts-cjk-sans
     noto-fonts-emoji
     lm_sensors
     htop
@@ -187,6 +189,7 @@
     lxqt.pavucontrol-qt
     lxqt.lxqt-policykit
     lxqt.qps
+    lxqt.lximage-qt
     lxqt.lxqt-archiver
     kanshi
     wlr-randr
@@ -204,3 +207,4 @@
   ];
   system.stateVersion = "22.11";
 }
+
