@@ -7,32 +7,35 @@
   imports = [
     ./hardware-configuration.nix
   ];
-  
+
   nix.settings = {
-    extra-experimental-features = "nix-command flakes";
+    experimental-features = "nix-command flakes";
     auto-optimise-store = true;
   };
-  
+
   security.rtkit.enable = true;
   hardware.bluetooth.enable = true;
-  
+
   system = {
     switch.enableNg = true;
     switch.enable = false;
     stateVersion = "22.11";
   };
-  
+
   time.timeZone = "Europe/Prague";
   qt.platformTheme = "qt5ct";
-  
-  boot = {loader = {systemd-boot.enable = true;
-                    efi.canTouchEfiVariables = true;
-                    efi.efiSysMountPoint = "/boot/efi";};
-          tmp.cleanOnBoot = true;
-          tmp.useTmpfs = true;
-          initrd.systemd.enable = true;
-         };
-  
+
+  boot = {
+    loader = {
+      systemd-boot.enable = true;
+      efi.canTouchEfiVariables = true;
+      efi.efiSysMountPoint = "/boot/efi";
+    };
+    tmp.cleanOnBoot = true;
+    tmp.useTmpfs = true;
+    initrd.systemd.enable = true;
+  };
+
   services = {
     pipewire = {
       enable = true;
@@ -41,10 +44,10 @@
       alsa.support32Bit = true;
       pulse.enable = true;
     };
-    
+
     power-profiles-daemon.enable = true;
     locate.localuser = null;
-    locate = {	
+    locate = {
       enable = true;
       package = pkgs.mlocate;
       interval = "hourly";
@@ -57,48 +60,53 @@
     emacs.package = pkgs.emacs-gtk;
     emacs.enable = true;
   };
-  
+
   programs = {
+    git.enable = true;
     steam.enable = true;
     gamescope.enable = true;
     steam.extraCompatPackages = with pkgs; [ proton-ge-bin ];
     wayfire.enable = true;
     wayfire.plugins = with pkgs.wayfirePlugins; [
-      wcm wayfire-plugins-extra wf-shell
+      wcm
+      wayfire-plugins-extra
+      wf-shell
     ];
   };
-  
+
   xdg = {
-    portal.enable = true;
-    portal.wlr.enable = true;
-    portal.config = {
-	    common = {
-		    default = ["gtk"];
-		    "org.freedesktop.ScreenSaver" = ["none"];
-		    "org.freedesktop.impl.portal.ScreenCast" = ["wlr"];
-		    "org.freedesktop.impl.portal.Screenshot" = ["wlr"];
-	    };
+    portal = {
+      enable = true;
+      wlr.enable = true;
+      config = {
+        common = {
+          default = [ "gtk" ];
+          "org.freedesktop.ScreenSaver" = [ "none" ];
+          "org.freedesktop.impl.portal.ScreenCast" = [ "wlr" ];
+          "org.freedesktop.impl.portal.Screenshot" = [ "wlr" ];
+        };
+      };
     };
   };
-  
+
   networking = {
-    networkmanager.enable = true;
+    networkmanager.enable = false;
     networkmanager.wifi.backend = "iwd";
     hostName = "KornerOS";
     useDHCP = false;
     wireless = {
       iwd.enable = true;
-        iwd.settings = {
-                     Network = {
-                       EnableIPv6 = true;
-                     };
-                     General = {
-                       EnableNetworkConfiguration = true;
-                     };
-                     Settings = {
-                       AutoConnect = true;
-                     };
-                   };
+      iwd.settings = {
+        Network = {
+          EnableIPv6 = true;
+        };
+        General = {
+          EnableNetworkConfiguration = true;
+        };
+        Settings = {
+          AutoConnect = true;
+        };
+      };
     };
   };
 
@@ -135,7 +143,7 @@
       LC_TIME = "cs_CZ.UTF-8";
     };
   };
-  
+
   systemd = {
     oomd.enable = false;
     services = {
@@ -153,20 +161,20 @@
       };
     };
   };
-  
+
   environment.variables = {
     QT_QPA_PLATFORMTHEME = "qt6ct";
     GTK_THEME = "Adwaita:dark";
     XDG_CURRENT_DESKTOP = "wayfire";
   };
-  
+
   virtualisation = {
     containers.enable = true;
     podman = {
       enable = true;
     };
   };
-  
+
   zramSwap = {
     enable = true;
     memoryPercent = 50;
@@ -181,23 +189,62 @@
       "wheel"
     ];
   };
-  
-  fonts.packages = with pkgs; [ noto-fonts-cjk-sans noto-fonts-emoji ];
+
+  fonts.packages = with pkgs; [
+    noto-fonts-cjk-sans
+    noto-fonts-emoji
+  ];
   nixpkgs.config.allowUnfree = true;
   environment.systemPackages = with pkgs; [
     (pkgs.emacs-gtk.overrideAttrs (old: {
-      configureFlags =
-        old.configureFlags
-        ++ [
-          "--with-native-compilation=yes"
-        ];}))
-    
-    lm_sensors htop time unrar gnutar pciutils prismlauncher vlc ckan
-    wdisplays acpi usbutils wgetpaste psmisc file git mc fastfetch
-    ffmpeg-full grim slurp terminator kanshi wlr-randr kdePackages.breeze-icons
-    freetube vintagestory element-desktop osu-lazer-bin qt6ct epiphany
-    flat-remix-icon-theme mako unzip distrobox
-    lxqt.pcmanfm-qt lxqt.pavucontrol-qt lxqt.lxqt-policykit lxqt.qps
-    lxqt.lxqt-panel lxqt.lximage-qt lxqt.lxqt-archiver 
+      configureFlags = old.configureFlags ++ [
+        "--with-native-compilation=aot"
+      ];
+    }))
+    lm_sensors
+    htop
+    time
+    unrar
+    gnutar
+    pciutils
+    prismlauncher
+    vlc
+    ckan
+    epiphany
+    statix
+    deadnix
+    wdisplays
+    acpi
+    usbutils
+    wgetpaste
+    psmisc
+    file
+    mc
+    fastfetch
+    ffmpeg-full
+    qt6ct
+    grim
+    slurp
+    terminator
+    kanshi
+    wlr-randr
+    freetube
+    vintagestory
+    element-desktop
+    osu-lazer-bin
+    flat-remix-icon-theme
+    mako
+    unzip
+    distrobox
+    kdePackages.breeze-icons
+    p7zip
+    lxqt.pcmanfm-qt
+    lxqt.pavucontrol-qt
+    lxqt.lxqt-policykit
+    lxqt.qps
+    nixfmt-rfc-style
+    lxqt.lxqt-panel
+    lxqt.lximage-qt
+    lxqt.lxqt-archiver
   ];
 }
